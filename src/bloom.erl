@@ -2,9 +2,18 @@
 %% @reference [http://en.wikipedia.org/wiki/Bloom_filter]
 
 -module(bloom).
--export([new/1, new/2, is_bloom/1, is_element/2, add_element/2]).
+-export([new/1, new/2, is_bloom/1, is_element/2, add_element/2, clear/1, count/1]).
 -import(math, [log/1, pow/2]).
 -import(erlang, [phash2/2]).
+
+-ifdef(TEST).
+-ifdef(EQC).
+-include_lib("eqc/include/eqc.hrl").
+-define(QC_OUT(P),
+        eqc:on_output(fun(Str, Args) -> io:format(user, Str, Args) end, P)).
+-endif.
+-include_lib("eunit/include/eunit.hrl").
+-endif.
 
 -record(bloom, {
     m      = 0,       % The size of the bitmap in bits.
@@ -14,7 +23,7 @@
     keys   = 0        % The current number of keys.
 }).
 
-%% @spec new(capacity) -> bloom()
+%% @spec new(capacity) -> bloom().
 %% @equiv new(capacity, 0.001)
 new(N) -> new(N, 0.001).
 
@@ -24,6 +33,21 @@ new(N) -> new(N, 0.001).
 new(N, E) when N > 0, is_float(E), E > 0, E =< 1 ->
     {M, K} = calc_least_bits(N, E),
     #bloom{m=M, bitmap = <<0:((M+7) div 8 * 8)>>, k=K, n=N}.
+
+%% @spec clear(bloom()) -> bloom().
+%% @doc Creates a new empty Bloom filter from an existing one.
+clear(#bloom{#bitmap=Bitmap} = B) ->
+    B#bloom{<<0:bit_size(Bitmap)>>, n=0}.
+
+%% @spec count(bloom()) -> unsigned().
+%% @doc Returns the number of elements encoded into this Bloom filter.
+count(#bloom{#keys=N}) ->
+    N.
+
+%% @spec filter_size(bloom()) -> unsigned().
+%% @doc Returns the number of bits used in this Bloom filter.
+filter_size(#bloom{#bitmap=Bitmap}) ->
+    bit_size(Bitmap).
 
 %% @spec is_bloom(bloom()) -> bool()
 %% @doc Determines if the given argument is a bloom record.
@@ -60,6 +84,15 @@ set_bits(Bin, [Idx | Idxs]) ->
     Mask = 1 bsl (Idx rem 8),
     Byte0 = Byte bor Mask,
     set_bits(<<Pre/binary, Byte0:8, Post/binary>>, Idxs).
+
+%% set2(N, Bin) ->
+%%     <<L:N/bits, _:1, R/bits>> = Bin,
+%%     <<L/bits, 1:1, R/bits>>.
+
+%% a(N, B) ->
+%%     fun (<<L:N/bits, _:1, R/bits>>) ->
+%%             <<L/bits, 1:1, R/bits>>
+%%     end(B).
 
 % Find the optimal bitmap size and number of hashes.
 calc_least_bits(N, E) -> calc_least_bits(N, E, 1, 0, 0).

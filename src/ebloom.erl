@@ -22,7 +22,7 @@
 %% the ebloom module.
 
 -module(ebloom).
--author('Dave Smith <dizzyd@dizzyd.com>').
+-author('Greg Burd <greg@burd.me>').
 
 -export([new/3,
          insert/2,
@@ -40,15 +40,16 @@
 
 -spec new(integer(), float(), integer()) -> {ok, reference()}.
 new(Count, FalseProb, _Seed) ->
-    bloom:new(Count, FalseProb).
+    {ok, bloom:new(Count, FalseProb)}.
 
 -spec insert(reference(), binary()) -> ok.
 insert(Ref, Bin) ->
-    bloom:add_element(Key, Ref).
+    bloom:add_element(Bin, Ref),
+    ok.
 
 -spec contains(reference(), binary()) -> true | false.
 contains(Ref, Bin) ->
-    is_element(Bin, Ref).
+    bloom:is_element(Bin, Ref).
 
 -spec clear(reference()) -> ok.
 clear(Ref) ->
@@ -64,19 +65,19 @@ elements(Ref) ->
 
 -spec effective_fpp(reference()) -> float().
 effective_fpp(_Ref) ->
-    raise not_yet_implemented.
+    throw(not_yet_implemented).
 
 -spec intersect(reference(), reference()) -> ok.
 intersect(_Ref, _OtherRef) ->
-    raise not_yet_implemented.
+    throw(not_yet_implemented).
 
 -spec union(reference(), reference()) -> ok.
 union(_Ref, _OtherRef) ->
-    raise not_yet_implemented.
+    throw(not_yet_implemented).
 
 -spec difference(reference(), reference()) -> ok.
 difference(_Ref, _OtherRef) ->
-    raise not_yet_implemented.
+    throw(not_yet_implemented).
 
 -spec serialize(reference()) -> binary().
 serialize(Ref) ->

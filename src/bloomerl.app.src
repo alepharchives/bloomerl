@@ -1,12 +1,20 @@
+
 {application, bloomerl,
  [
   {description, "Bloom filters"},
   {vsn, "1.0.0"},
   {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib
-                 ]},
+  {applications, [kernel, stdlib  ]},
   {mod, {bloomerl_app, []}},
-  {env, []}
- ]}.
+  {env, [
+    {lager, [
+      {handlers, [
+        {lager_console_backend, info},
+        {lager_file_backend, [
+          {"error.log", error, 10485760, "$D0", 5},
+          {"console.log", info, 10485760, "$D0", 5}
+        ]}
+      ]}
+    ]}
+  ]}
+]}.

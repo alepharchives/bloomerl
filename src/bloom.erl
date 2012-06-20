@@ -37,7 +37,7 @@ new(N, E) when N > 0, is_float(E), E > 0, E =< 1 ->
 %% @doc Creates a new empty Bloom filter from an existing one.
 -spec clear(#bloom{}) -> #bloom{}.
 clear(#bloom{bitmap=Bitmap} = B) ->
-    B#bloom{bitmap = <<0:(erlang:bit_size(Bitmap))>>, n=0}.
+    B#bloom{bitmap = <<0:(erlang:bit_size(Bitmap))>>, n=0, keys=0}.
 
 %% @doc Returns the number of elements encoded into this Bloom filter.
 -spec count(#bloom{}) -> non_neg_integer().

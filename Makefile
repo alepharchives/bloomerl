@@ -80,7 +80,7 @@ proper-compile: compile-proper
 
 eunit: eunit-compile
 	@echo "eunit testing: $(RELPKG) ..."
-	$(REBAR) eunit recursive=false
+	$(REBAR) eunit skip_deps=true
 
 eqc: eqc-compile
 	@echo "eqc testing: $(RELPKG) ... not implemented yet"

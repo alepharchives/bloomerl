@@ -2,18 +2,12 @@
 %% @reference [http://en.wikipedia.org/wiki/Bloom_filter]
 
 -module(bloom).
+
 -export([new/1, new/2, is_bloom/1, is_element/2, add_element/2, clear/1, count/1, filter_size/1]).
+
 -import(math, [log/1, pow/2]).
 -import(erlang, [phash2/2]).
 
--ifdef(TEST).
--ifdef(EQC).
--include_lib("eqc/include/eqc.hrl").
--define(QC_OUT(P),
-        eqc:on_output(fun(Str, Args) -> io:format(user, Str, Args) end, P)).
--endif.
--include_lib("eunit/include/eunit.hrl").
--endif.
 
 -record(bloom, {
     m      = 0     :: non_neg_integer(),       % The size of the bitmap in bits.

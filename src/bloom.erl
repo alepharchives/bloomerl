@@ -67,7 +67,7 @@ add_element(Key, #bloom{keys=Keys, n=N, bitmap=Bitmap} = B) when Keys < N ->
     Idxs = calc_idxs(Key, B),
     Bitmap0 = set_bits(Bitmap, Idxs),
     case Bitmap0 == Bitmap of
-         true -> B;    % Don't increment key count for duplicates.
+         true -> B#bloom{bitmap=Bitmap0}; % Don't increment key count for duplicates.
         false -> B#bloom{bitmap=Bitmap0, keys=Keys+1}
     end.
 
@@ -81,6 +81,11 @@ set_bits(Bin, [Idx | Idxs]) ->
     Mask = 1 bsl (Idx rem 8),
     Byte0 = Byte bor Mask,
     set_bits(<<Pre/binary, Byte0:8, Post/binary>>, Idxs).
+
+%set_bits(Bin, [Idx | Idxs]) ->
+%    <<Pre:Idx/bitstring, _:1/bitstring, Post/bitstring>> = Bin,
+%    set_bits(<<Pre/bitstring, 1:1, Post/bitstring>>, Idxs).
+
 
 %% @internal
 %% @doc Find the optimal bitmap size and number of hashes.
